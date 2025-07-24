@@ -39,12 +39,12 @@ function mainUserListApp() {
       container: `.${classes.container}`,
       title: `.${classes.title}`,
       userList: `.${classes.userList}`,
-      userCard: `${classes.userCard}`,
-      cardHeader: `${classes.cardHeader}`,
-      cardBody: `${classes.cardBody},`,
-      cardMainInfo: `${classes.cardMainInfo}`,
-      cardAdress: `${classes.cardAdress}`,
-      cardFooter: `${classes.cardFooter}`,
+      userCard: `.${classes.userCard}`,
+      cardHeader: `.${classes.cardHeader}`,
+      cardBody: `.${classes.cardBody},`,
+      cardMainInfo: `.${classes.cardMainInfo}`,
+      cardAdress: `.${classes.cardAdress}`,
+      cardFooter: `.${classes.cardFooter}`,
       deleteBtn: `.${classes.deleteBtn}`,
       errorMsg: `.${classes.errorMsg}`,
       reloadBtn: `.${classes.reloadBtn}`,
@@ -70,6 +70,11 @@ function mainUserListApp() {
       $(selectors.container).remove();
       $(document).off('.userDeleteEvent');
       $(document).off('.reloadBtnEvent');
+
+      if (self.userObserver) {
+        self.userObserver.disconnect();
+        self.userObserver = null;
+      }
     };
 
     self.buildCSS = () => {
@@ -263,10 +268,15 @@ function mainUserListApp() {
     };
 
     self.renderList = (users) => {
-      const $oldList = $(`${selectors.userList}`);
-      $oldList.remove();
       const $container = $(selectors.container);
-      const $userList = $(`<div class="${classes.userList}"></div>`);
+      let $userList = $(selectors.userList);
+
+      if ($userList.length) {
+        $userList.empty();
+      } else {
+        $userList = $(`<div class="${classes.userList}"></div>`);
+        $container.append($userList);
+      }
 
       $.each(users, function (index, user) {
         const $card = $(`<div class=${classes.userCard}></div>`);
@@ -301,8 +311,6 @@ function mainUserListApp() {
 
         $userList.append($card);
       });
-
-      $container.append($userList);
     };
 
     self.deleteUser = (id) => {
@@ -353,32 +361,38 @@ function mainUserListApp() {
     };
 
     self.observeUserList = () => {
-      const userListNode = $(selectors.userList);
+      setTimeout(() => {
+        const containerNode = document.querySelector(selectors.container);
 
-      if (!userListNode) return;
+        if (!containerNode) return;
 
-      if (self.userObserver) self.userObserver.disconnect();
+        if (self.userObserver) self.userObserver.disconnect();
 
-      self.userObserver = new MutationObserver((mutation, observer) => {
-        if (
-          !sessionStorage.getItem('isUsersReloaded') &&
-          $(selectors.userCard)
-        ) {
-          self.showReloadBtn();
-        }
-      });
+        self.userObserver = new MutationObserver(() => {
+          console.log('deneme');
+          if (
+            !sessionStorage.getItem('isUsersReloaded') &&
+            $(selectors.userCard).length === 0
+          ) {
+            self.showReloadBtn();
+          }
+        });
 
-      self.userObserver.observe(userListNode, { childList: true });
+        self.userObserver.observe(containerNode, {
+          childList: true,
+          subtree: true,
+        });
+      }, 100);
     };
 
     self.showReloadBtn = () => {
-      if ($(selectors.reloadBtn)) return;
+      if ($(selectors.reloadBtn).length) return;
 
       const $btn = $(
         `<button class=${classes.reloadBtn}>Reload Users</button>`
       );
 
-      $container = $(selectors.container);
+      const $container = $(selectors.container);
 
       $container.append($btn);
     };
