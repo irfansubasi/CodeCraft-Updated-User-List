@@ -15,6 +15,8 @@ function mainUserListApp() {
   (($) => {
     'use strict';
 
+    const APPEND_LOCATION = '.ins-api-users';
+
     const classes = {
       style: 'userlist-style',
       container: 'container',
@@ -43,7 +45,7 @@ function mainUserListApp() {
       cardFooter: `${classes.cardFooter}`,
       deleteBtn: `.${classes.deleteBtn}`,
       errorMsg: `.${classes.errorMsg}`,
-      appendLocation: '.ins-api-users',
+      appendLocation: APPEND_LOCATION,
     };
 
     const API_URL = 'https://jsonplaceholder.typicode.com/users';
