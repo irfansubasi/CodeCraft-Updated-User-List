@@ -30,9 +30,11 @@ function mainUserListApp() {
       cardFooter: 'card-footer',
       deleteBtn: 'delete-btn',
       errorMsg: 'userlist-error-message',
+      reloadBtn: 'reload-btn',
     };
 
     const selectors = {
+      appendLocation: APPEND_LOCATION,
       style: `.${classes.style}`,
       container: `.${classes.container}`,
       title: `.${classes.title}`,
@@ -45,7 +47,7 @@ function mainUserListApp() {
       cardFooter: `${classes.cardFooter}`,
       deleteBtn: `.${classes.deleteBtn}`,
       errorMsg: `.${classes.errorMsg}`,
-      appendLocation: APPEND_LOCATION,
+      reloadBtn: `.${classes.reloadBtn}`,
     };
 
     const API_URL = 'https://jsonplaceholder.typicode.com/users';
@@ -60,12 +62,14 @@ function mainUserListApp() {
       self.buildHTML();
       self.checkAndLoadData();
       self.setEvents();
+      self.observeUserList();
     };
 
     self.reset = () => {
       $(selectors.style).remove();
       $(selectors.container).remove();
       $(document).off('.userDeleteEvent');
+      $(document).off('.reloadBtnEvent');
     };
 
     self.buildCSS = () => {
@@ -217,6 +221,12 @@ function mainUserListApp() {
         const $id = Number($(this).data('id'));
         self.deleteUser($id);
       });
+
+      $(document).on(`click.reloadBtnEvent`, selectors.reloadBtn, function () {
+        sessionStorage.setItem('isUsersReloaded', 'true');
+        $(this).remove();
+        self.checkAndLoadData();
+      });
     };
 
     self.showError = (message) => {
@@ -340,6 +350,37 @@ function mainUserListApp() {
         );
         return null;
       }
+    };
+
+    self.observeUserList = () => {
+      const userListNode = $(selectors.userList);
+
+      if (!userListNode) return;
+
+      if (self.userObserver) self.userObserver.disconnect();
+
+      self.userObserver = new MutationObserver((mutation, observer) => {
+        if (
+          !sessionStorage.getItem('isUsersReloaded') &&
+          $(selectors.userCard)
+        ) {
+          self.showReloadBtn();
+        }
+      });
+
+      self.userObserver.observe(userListNode, { childList: true });
+    };
+
+    self.showReloadBtn = () => {
+      if ($(selectors.reloadBtn)) return;
+
+      const $btn = $(
+        `<button class=${classes.reloadBtn}>Reload Users</button>`
+      );
+
+      $container = $(selectors.container);
+
+      $container.append($btn);
     };
 
     $(document).ready(self.init);
