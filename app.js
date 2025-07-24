@@ -1,8 +1,8 @@
-(function () {
+(() => {
   if (typeof window.jQuery === 'undefined') {
     const script = document.createElement('script');
     script.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
-    script.onload = function () {
+    script.onload = () => {
       mainUserListApp();
     };
     document.head.appendChild(script);
@@ -11,7 +11,7 @@
   }
 })();
 
-function mainUserListApp() {
+const mainUserListApp = () => {
   (($) => {
     'use strict';
 
@@ -420,4 +420,4 @@ function mainUserListApp() {
 
     $(document).ready(self.init);
   })(jQuery);
-}
+};
