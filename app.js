@@ -199,6 +199,27 @@ function mainUserListApp() {
           box-shadow: 0 2px 16px rgba(0,0,0,0.10);
         }
 
+        .${classes.reloadBtn} {
+          background: #3498db;
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 12px 28px;
+          cursor: pointer;
+          font-size: 1.1em;
+          font-weight: 600;
+          margin: 32px auto 0 auto;
+          display: block;
+          box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+          transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+          letter-spacing: 0.5px;
+        }
+        .${classes.reloadBtn}:hover {
+          background: #217dbb;
+          box-shadow: 0 4px 16px rgba(52,152,219,0.18);
+          transform: translateY(-2px) scale(1.03);
+        }
+
         @media (max-width: 600px) {
           ${selectors.container} {
             padding: 40px;
@@ -229,6 +250,7 @@ function mainUserListApp() {
 
       $(document).on(`click.reloadBtnEvent`, selectors.reloadBtn, function () {
         sessionStorage.setItem('isUsersReloaded', 'true');
+        localStorage.removeItem('userListData');
         $(this).remove();
         self.checkAndLoadData();
       });
@@ -369,7 +391,6 @@ function mainUserListApp() {
         if (self.userObserver) self.userObserver.disconnect();
 
         self.userObserver = new MutationObserver(() => {
-          console.log('deneme');
           if (
             !sessionStorage.getItem('isUsersReloaded') &&
             $(selectors.userCard).length === 0
